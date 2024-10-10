@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz de Capitales de España</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8fafc; /* Color de fondo claro */
+        }
+        .selected {
+            background-color: #4a90e2; /* Color para opción seleccionada */
+            color: white;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+    <div class="bg-white shadow-md rounded-lg p-6 w-11/12 max-w-xl">
+        <h1 class="text-2xl font-bold mb-4 text-center">Quiz: ¿Cuánto sabes de las capitales de España?</h1>
+        <p class="mb-4 text-center">Tienes 10 segundos para contestar cada pregunta. ¡Buena suerte!</p>
+        <div id="quiz-container" class="hidden">
+            <div id="question" class="mb-4 text-xl font-semibold"></div>
+            <div id="hints" class="mb-2"></div>
+            <div id="options" class="flex flex-col"></div>
+            <div id="timer" class="text-red-500 text-lg font-bold mb-4"></div>
+            <button id="next-button" class="mt-4 bg-blue-500 text-white py-2 rounded-lg" disabled>Siguiente</button>
+        </div>
+        <div id="result-container" class="hidden">
+            <h2 id="result" class="text-xl font-semibold text-center mb-4"></h2>
+            <div id="solutions" class="mb-4 text-center"></div>
+            <button id="restart-button" class="bg-blue-500 text-white py-2 rounded-lg" onclick="restartQuiz()">Reiniciar Quiz</button>
+            <p class="mt-4 text-center">O <button id="start-over-button" class="text-blue-500 underline" onclick="startQuiz()">haz clic aquí para empezar de nuevo.</button></p>
+        </div>
+        <button id="start-button" class="mt-4 bg-blue-500 text-white py-2 rounded-lg">Iniciar Quiz</button>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "¿Cuál es la capital de la comunidad autónoma famosa por su feria de abril?",
+                hints: [
+                    "- Esta ciudad celebra cada año una famosa feria en abril, llena de casetas, trajes tradicionales y flamenco.",
+                    "- Es hogar de la tercera catedral gótica más grande del mundo.",
+                    "- Se encuentra en la comunidad autónoma más poblada de España."
+                ],
+                options: ["Sevilla", "Madrid", "Valencia"],
+                answer: "Sevilla"
+            },
+            {
+                question: "¿Cuál es la capital de la comunidad conocida por sus vinos, especialmente el tinto?",
+                hints: [
+                    "- Es la capital de una comunidad famosa por sus vinos, donde se producen algunos de los mejores tintos de España.",
+                    "- La ciudad es atravesada por el río Ebro, y uno de sus puentes es icónico.",
+                    "- Es una parada importante en el Camino de Santiago."
+                ],
+                options: ["Valladolid", "Logroño", "Burgos"],
+                answer: "Logroño"
+            },
+            {
+                question: "¿Cuál es la capital que alberga una de las residencias oficiales de la monarquía española?",
+                hints: [
+                    "- Esta ciudad alberga una de las residencias oficiales de la monarquía española.",
+                    "- Su red de transporte subterráneo es una de las más grandes de Europa.",
+                    "- Tiene una de las plazas más emblemáticas de España, donde se encuentra la sede del gobierno."
+                ],
+                options: ["Madrid", "Barcelona", "Zaragoza"],
+                answer: "Madrid"
+            },
+            {
+                question: "¿Cuál es la ciudad que es sede de uno de los bancos más grandes del mundo?",
+                hints: [
+                    "- Esta ciudad está en el norte de España, bañada por el mar Cantábrico.",
+                    "- Es la sede de uno de los bancos más grandes del mundo, que lleva el nombre de la ciudad.",
+                    "- Su bahía es una de las más bellas del mundo y alberga el Palacio de la Magdalena."
+                ],
+                options: ["Santander", "Bilbao", "Oviedo"],
+                answer: "Santander"
+            },
+            {
+                question: "¿Cuál es la capital que tiene la famosa Sagrada Familia?",
+                hints: [
+                    "- La Sagrada Familia, uno de los monumentos más visitados de España, está en esta ciudad.",
+                    "- Es un importante puerto mediterráneo y ha sido sede de unos Juegos Olímpicos.",
+                    "- Es la capital de una comunidad que tiene una identidad lingüística propia."
+                ],
+                options: ["Barcelona", "Palma", "Valencia"],
+                answer: "Barcelona"
+            },
+            {
+                question: "¿Cuál es la ciudad que fue la capital del imperio español antes de Madrid?",
+                hints: [
+                    "- Esta ciudad fue la capital del imperio español antes de Madrid.",
+                    "- Es conocida por su imponente alcázar y por la catedral primada.",
+                    "- El Greco, famoso pintor renacentista, vivió y trabajó en esta ciudad."
+                ],
+                options: ["Toledo", "Segovia", "Salamanca"],
+                answer: "Toledo"
+            },
+            {
+                question: "¿Cuál es la ciudad que celebra un famoso encierro de toros cada julio?",
+                hints: [
+                    "- En esta ciudad se celebra un famoso encierro de toros cada mes de julio.",
+                    "- Su casco antiguo es uno de los mejor conservados de España.",
+                    "- Se encuentra en una comunidad muy cercana a Francia."
+                ],
+                options: ["Logroño", "Pamplona", "Vitoria-Gasteiz"],
+                answer: "Pamplona"
+            },
+            {
+                question: "¿Cuál es la capital de un archipiélago famoso por sus playas y clima cálido?",
+                hints: [
+                    "- Esta ciudad está en una isla y es uno de los destinos turísticos más populares del Mediterráneo.",
+                    "- Su catedral, conocida como 'La Seu', se asoma al mar y es un símbolo de la ciudad.",
+                    "- Es la capital de un archipiélago famoso por sus playas y clima cálido."
+                ],
+                options: ["Palma de Mallorca", "Ibiza", "Menorca"],
+                answer: "Palma de Mallorca"
+            },
+            {
+                question: "¿Cuál es la ciudad famosa por el festival de Las Fallas?",
+                hints: [
+                    "- Esta ciudad está a orillas del río Turia, que fue desviado tras una gran inundación.",
+                    "- Es famosa por su festival de Las Fallas, que culmina con la quema de enormes figuras de cartón.",
+                    "- Su comunidad autónoma comparte nombre con un cítrico muy popular en la región."
+                ],
+                options: ["Valencia", "Palma", "Zaragoza"],
+                answer: "Valencia"
+            },
+            {
+                question: "¿Cuál es la ciudad que es el final del Camino de Santiago?",
+                hints: [
+                    "- Esta ciudad es el final del famoso Camino de peregrinación que atraviesa toda España.",
+                    "- Su catedral es uno de los principales destinos de peregrinación cristiana.",
+                    "- Está en una comunidad autónoma conocida por sus verdes paisajes y lluvias."
+                ],
+                options: ["Oviedo", "Lugo", "Santiago de Compostela"],
+                answer: "Santiago de Compostela"
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timer;
+
+        document.getElementById('start-button').addEventListener('click', startQuiz);
+        document.getElementById('next-button').addEventListener('click', nextQuestion);
+
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            document.getElementById('start-button').classList.add('hidden');
+            document.getElementById('quiz-container').classList.remove('hidden');
+            document.getElementById('result-container').classList.add('hidden');
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const question = questions[currentQuestionIndex];
+            document.getElementById('question').innerText = question.question;
+            document.getElementById('hints').innerHTML = question.hints.map(hint => `<p>${hint}</p>`).join('');
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+
+            question.options.forEach(option => {
+                const button = document.createElement('button');
+                button.innerText = option;
+                button.className = "bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded mb-2";
+                button.addEventListener('click', () => selectOption(button, option));
+                optionsContainer.appendChild(button);
+            });
+
+            document.getElementById('timer').innerText = "Tiempo restante: 10 segundos";
+            startTimer();
+        }
+
+        function selectOption(button, selectedOption) {
+            clearInterval(timer);
+            const question = questions[currentQuestionIndex];
+            if (selectedOption === question.answer) {
+                score++;
+                button.classList.add('selected'); // Resaltar opción correcta
+            } else {
+                document.querySelectorAll('#options button').forEach(btn => {
+                    if (btn.innerText === question.answer) {
+                        btn.classList.add('selected'); // Resaltar respuesta correcta si se selecciona la incorrecta
+                    }
+                });
+            }
+            document.getElementById('next-button').disabled = false;
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                showQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function startTimer() {
+            let timeLeft = 10;
+            document.getElementById('next-button').disabled = true;
+            timer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').innerText = `Tiempo restante: ${timeLeft} segundos`;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    document.getElementById('next-button').disabled = false;
+                    selectOption(null, null); // Sin respuesta seleccionada
+                }
+            }, 1000);
+        }
+
+        function showResult() {
+            clearInterval(timer);
+            document.getElementById('quiz-container').classList.add('hidden');
+            document.getElementById('result-container').classList.remove('hidden');
+            let message = "";
+            let solutions = "<strong>Soluciones:</strong><br>";
+            questions.forEach((q, index) => {
+                solutions += `Pregunta ${index + 1}: ${q.question}<br>Respuesta correcta: ${q.answer}<br>`;
+            });
+            switch (score) {
+                case 10:
+                    message = "¡Eres todo un experto en geografía española!";
+                    break;
+                case 8:
+                case 9:
+                    message = "¡Muy bien! Tienes un gran conocimiento.";
+                    break;
+                case 5:
+                case 6:
+                case 7:
+                    message = "¡No está mal! Pero puedes mejorar.";
+                    break;
+                default:
+                    message = "¡Sigue practicando y lo harás mejor la próxima vez!";
+            }
+            document.getElementById('result').innerText = message + `\nHas acertado ${score} de ${questions.length} preguntas.`;
+            document.getElementById('solutions').innerHTML = solutions;
+        }
+
+        function restartQuiz() {
+            startQuiz();
+        }
+    </script>
+</body>
+</html>
